@@ -2,7 +2,7 @@
 # bridgemq
 The fully compliant, embeddable high-performance Go MQTT broker server, support bridge mode.
 
-Bridgemq can be used as a standalone broker and it based on [mochi-co/mqtt](https://github.com/mochi-co/mqtt) . bridgemq also support bridge mode, it use [hashicorp/serf](https://github.com/hashicorp/serf) for discovery and [grpc](https://github.com/grpc/grpc-go) to transmit message between agens .
+Bridgemq can be used as a standalone broker and it based on [mochi-co/mqtt](https://github.com/mochi-co/mqtt) . bridgemq also support bridge mode, it use [hashicorp/serf](https://github.com/hashicorp/serf) for discovery and [grpc](https://github.com/grpc/grpc-go) to transmit message between agents .
 
 
 ## Quick Start
@@ -29,7 +29,7 @@ go build -o bridgemq && ./bridgemq
 # only tls on 8883
 ./bridgemq -tls=8883 -tls-ca="./ca.crt" -tls-cert="./server.crt" -tls-key="./server.key"
 
-# both start tcp and tls tcp
+# start both tcp and tls tcp
 ./bridgemq -tcp=1883 -tls=8883 -tls-ca="./ca.crt" -tls-cert="./server.crt" -tls-key="./server.key"
 ```
 
