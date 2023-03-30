@@ -1,4 +1,4 @@
-package bridge
+package bridgemq
 
 type Err struct {
 	Msg  string

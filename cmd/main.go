@@ -18,7 +18,7 @@ import (
 	"github.com/mochi-co/mqtt/v2/hooks/storage/bolt"
 	"github.com/mochi-co/mqtt/v2/listeners"
 	"github.com/rs/zerolog"
-	bridge "github.com/werbenhu/bridgemq"
+	"github.com/werbenhu/bridgemq"
 	"go.etcd.io/bbolt"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -124,13 +124,13 @@ func main() {
 
 	// if bridge mode on, add bridge hook to mqtt server
 	if *isBridge {
-		_ = server.AddHook(new(bridge.Hook), []bridge.IOption{
-			bridge.OptName(*agentName),
-			bridge.OptAddr(*agentAddr),
-			bridge.OptAgents(*agents),
-			bridge.OptBroker(server),
-			bridge.OptAdvertise(*agentAdvertise),
-			bridge.OptPipePort(*pipePort),
+		_ = server.AddHook(new(bridgemq.Hook), []bridgemq.IOption{
+			bridgemq.OptName(*agentName),
+			bridgemq.OptAddr(*agentAddr),
+			bridgemq.OptAgents(*agents),
+			bridgemq.OptBroker(server),
+			bridgemq.OptAdvertise(*agentAdvertise),
+			bridgemq.OptPipePort(*pipePort),
 		})
 	}
 
