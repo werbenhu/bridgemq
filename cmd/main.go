@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	writers := io.MultiWriter(&lumberjack.Logger{
-		Filename:   "./log/mqttor.log",
+		Filename:   "./log/bridgemq.log",
 		MaxSize:    10,
 		MaxBackups: 3,
 		MaxAge:     28,
