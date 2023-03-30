@@ -41,6 +41,12 @@ func (b *Bridge) Serve() error {
 	return nil
 }
 
+func (b *Bridge) Stop() error {
+	b.transport.Stop()
+	b.discovery.Stop()
+	return nil
+}
+
 func (b *Bridge) OnAgentJoin(a *discovery.Agent) {
 	if b.transport != nil {
 		b.transport.Join(a)

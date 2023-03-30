@@ -83,5 +83,5 @@ func (h *Hook) pushPublish(cl *mqtt.Client, pk packets.Packet) {
 
 // Stop is called to gracefully shutdown the hook.
 func (h *Hook) Stop() error {
-	return nil
+	return h.bridge.Stop()
 }
