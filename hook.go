@@ -12,15 +12,10 @@ const (
 	HookId = "bridgehook"
 )
 
-// Options contains configuration settings for the debug output.
-type Options struct {
-}
-
 // Hook is a debugging hook which logs additional low-level information from the server.
 type Hook struct {
 	bridge *Bridge
 	mqtt.HookBase
-	config *Options
 }
 
 func (h *Hook) ID() string {
