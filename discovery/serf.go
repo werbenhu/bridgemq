@@ -77,7 +77,7 @@ func (s *Serf) Start() error {
 
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
-		MinLevel: logutils.LogLevel("ERROR"),
+		MinLevel: logutils.LogLevel("WARN"),
 		Writer: io.MultiWriter(&lumberjack.Logger{
 			Filename:   "./log/serf.log",
 			MaxSize:    10, // megabytes
