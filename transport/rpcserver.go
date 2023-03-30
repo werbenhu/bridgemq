@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+// RpcServer is a grpc server recive connet, disconnect and publish package from other agent
 type RpcServer struct {
 	handler Handler
 }
@@ -14,7 +15,7 @@ func NewRpcServer(h Handler) *RpcServer {
 	}
 }
 
-// 处理来自其它节点来得连接事件
+// PushConnect handle connect package from other agents via grpc
 func (s *RpcServer) PushConnect(ctx context.Context, req *Connect) (*Response, error) {
 	if s.handler != nil {
 		s.handler.OnConnect(req.AgentId, req.ClientId)
@@ -25,7 +26,7 @@ func (s *RpcServer) PushConnect(ctx context.Context, req *Connect) (*Response, e
 	}, nil
 }
 
-// 处理来自其它节点来得断开连接事件
+// PushDisconnect handle disconnect package from other agents via grpc
 func (s *RpcServer) PushDisconnect(ctx context.Context, req *Disconnect) (*Response, error) {
 	if s.handler != nil {
 		s.handler.OnDisConnect(req.AgentId, req.ClientId)
@@ -36,7 +37,7 @@ func (s *RpcServer) PushDisconnect(ctx context.Context, req *Disconnect) (*Respo
 	}, nil
 }
 
-// 处理来自其它节点来得发布事件
+// PushPublish handle publich package from other agents via grpc
 func (s *RpcServer) PushPublish(ctx context.Context, req *Publish) (*Response, error) {
 	if s.handler != nil {
 		s.handler.OnPublish(req.AgentId, req.Topic, req.Payload, byte(req.Qos), req.Retain)

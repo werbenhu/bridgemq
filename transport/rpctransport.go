@@ -36,6 +36,7 @@ func (g *RpcTransport) SetHandler(h Handler) {
 	g.handler = h
 }
 
+// Join() is called When a new agent is discovered by the discovery
 func (g *RpcTransport) Join(node *discovery.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
 		addr := node.Addr + ":" + node.PipePort
@@ -54,6 +55,7 @@ func (g *RpcTransport) Join(node *discovery.Agent) {
 	}
 }
 
+// Leave() is called When a agent is left
 func (g *RpcTransport) Leave(node *discovery.Agent) {
 	if c, ok := g.clients.Load(node.Id); ok {
 		addr := node.Addr + ":" + node.PipePort
@@ -64,6 +66,7 @@ func (g *RpcTransport) Leave(node *discovery.Agent) {
 	}
 }
 
+// Join() is called When a agent updated
 func (g *RpcTransport) Update(node *discovery.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
 		addr := node.Addr + ":" + node.PipePort
@@ -82,6 +85,8 @@ func (g *RpcTransport) Update(node *discovery.Agent) {
 	}
 }
 
+// PushConnect transmit a connect package to the remote agent via grpc
+// clientId is the client id of the client that connected
 func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
 	g.clients.Range(func(key any, val any) bool {
 		if key.(string) == node.Id {
@@ -91,7 +96,6 @@ func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// log.Printf("[DEBUG] bridge push connect to agent:%s \n", key.(string))
 		if _, err := client.PushConnect(ctx, &Connect{
 			AgentId:  node.Id,
 			ClientId: clientId,
@@ -102,6 +106,8 @@ func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
 	})
 }
 
+// PushDisconnect transmit a connect package to the remote agent via grpc
+// clientId is the client id of the client that connected
 func (g *RpcTransport) PushDisconnect(node *discovery.Agent, clientId string) {
 	g.clients.Range(func(key any, val any) bool {
 		if key.(string) == node.Id {
@@ -121,6 +127,7 @@ func (g *RpcTransport) PushDisconnect(node *discovery.Agent, clientId string) {
 	})
 }
 
+// PushPublish transmit a publish package to the remote agent via grpc
 func (g *RpcTransport) PushPublish(node *discovery.Agent, topic string, payload []byte, qos byte, retain bool) {
 	g.clients.Range(func(key any, val any) bool {
 		if key.(string) == node.Id {
