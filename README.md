@@ -105,6 +105,7 @@ docker run \
     -e BRIDGE=true \
     -e AGENT_ADDR=":7934" \
     -e AGENT_ADVERTISE="172.16.3.3:7934" \
+    -e PIPE_PORT="8934" \
     -e AGENTS="172.16.3.3:7933" \
     -v /root/bridgemq/log2:/log \
     -v /root/bridgemq/data2:/data \
