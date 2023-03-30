@@ -140,7 +140,6 @@ func (s *Serf) Loop() {
 				if s.opts.Name != member.Name {
 					s.handler.OnAgentJoin(node)
 				}
-				// log.Printf("[DEBUG] serf new agent:%+v joined\n", node)
 				s.agents.Store(node.Id, node)
 			}
 
@@ -155,7 +154,6 @@ func (s *Serf) Loop() {
 				if s.serf.LocalMember().Name != member.Name {
 					s.handler.OnAgentUpdate(node)
 				}
-				// log.Printf("[DEBUG] serf new agent:%+v updated\n", node)
 				s.agents.Store(node.Id, node)
 			}
 
@@ -167,7 +165,6 @@ func (s *Serf) Loop() {
 					Port:         member.Port,
 					TransmitPort: member.Tags[PortKey],
 				}
-				// log.Printf("[DEBUG] serf new agent:%+v leave\n", node)
 				if s.serf.LocalMember().Name == member.Name {
 					s.handler.OnAgentLeave(node)
 					s.agents.Delete(node.Id)
