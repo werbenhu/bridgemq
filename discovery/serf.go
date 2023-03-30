@@ -132,10 +132,10 @@ func (s *Serf) Loop() {
 		case serf.EventMemberJoin:
 			for _, member := range e.(serf.MemberEvent).Members {
 				node := &Agent{
-					Id:           member.Name,
-					Addr:         member.Addr.String(),
-					Port:         member.Port,
-					TransmitPort: member.Tags[PortKey],
+					Id:       member.Name,
+					Addr:     member.Addr.String(),
+					Port:     member.Port,
+					PipePort: member.Tags[PortKey],
 				}
 				if s.opts.Name != member.Name {
 					s.handler.OnAgentJoin(node)
@@ -146,10 +146,10 @@ func (s *Serf) Loop() {
 		case serf.EventMemberUpdate:
 			for _, member := range e.(serf.MemberEvent).Members {
 				node := &Agent{
-					Id:           member.Name,
-					Addr:         member.Addr.String(),
-					Port:         member.Port,
-					TransmitPort: member.Tags[PortKey],
+					Id:       member.Name,
+					Addr:     member.Addr.String(),
+					Port:     member.Port,
+					PipePort: member.Tags[PortKey],
 				}
 				if s.serf.LocalMember().Name != member.Name {
 					s.handler.OnAgentUpdate(node)
@@ -160,10 +160,10 @@ func (s *Serf) Loop() {
 		case serf.EventMemberLeave, serf.EventMemberFailed:
 			for _, member := range e.(serf.MemberEvent).Members {
 				node := &Agent{
-					Id:           member.Name,
-					Addr:         member.Addr.String(),
-					Port:         member.Port,
-					TransmitPort: member.Tags[PortKey],
+					Id:       member.Name,
+					Addr:     member.Addr.String(),
+					Port:     member.Port,
+					PipePort: member.Tags[PortKey],
 				}
 				if s.serf.LocalMember().Name == member.Name {
 					s.handler.OnAgentLeave(node)

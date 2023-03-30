@@ -38,7 +38,7 @@ func (g *RpcTransport) SetHandler(h Handler) {
 
 func (g *RpcTransport) Join(node *discovery.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
-		addr := node.Addr + ":" + node.TransmitPort
+		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s has joined, addr:%s \n", node.Id, addr)
 		conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithUserAgent(node.Id))
 		if err != nil {
@@ -56,7 +56,7 @@ func (g *RpcTransport) Join(node *discovery.Agent) {
 
 func (g *RpcTransport) Leave(node *discovery.Agent) {
 	if c, ok := g.clients.Load(node.Id); ok {
-		addr := node.Addr + ":" + node.TransmitPort
+		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s has left, addr:%s \n", node.Id, addr)
 		client := c.(*RpcClient)
 		g.clients.Delete(node.Id)
@@ -66,7 +66,7 @@ func (g *RpcTransport) Leave(node *discovery.Agent) {
 
 func (g *RpcTransport) Update(node *discovery.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
-		addr := node.Addr + ":" + node.TransmitPort
+		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s was updated, addr: %s \n", node.Id, addr)
 		conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithUserAgent(node.Id))
 		if err != nil {

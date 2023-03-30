@@ -1,10 +1,10 @@
 package discovery
 
 type Agent struct {
-	Id           string
-	Addr         string
-	Port         uint16
-	TransmitPort string
+	Id       string
+	Addr     string
+	Port     uint16
+	PipePort string
 }
 
 type Handler interface {
