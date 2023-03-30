@@ -110,8 +110,8 @@ docker run \
     -v /root/bridgemq/log2:/log \
     -v /root/bridgemq/data2:/data \
     --name node2 \
-    -p 8884:8884 \
     -p 1884:1884 \
+    -p 8934:8934 \
     -p 7934:7934 \
     -p 7934:7934/udp \
     -d werbenhu/bridgemq
