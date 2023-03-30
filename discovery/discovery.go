@@ -1,0 +1,22 @@
+package discovery
+
+type Agent struct {
+	Id           string
+	Addr         string
+	Port         uint16
+	TransmitPort string
+}
+
+type Handler interface {
+	OnAgentJoin(*Agent)
+	OnAgentLeave(*Agent)
+	OnAgentUpdate(*Agent)
+}
+
+type Discovery interface {
+	SetHandler(Handler)
+	Agents() []*Agent
+	LocalAgent() *Agent
+	Start() error
+	Stop()
+}
