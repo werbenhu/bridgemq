@@ -59,8 +59,8 @@ A simple Dockerfile is provided for running the [cmd/main.go](cmd/main.go) Webso
 docker build -t werbenhu/bridgemq:latest .
 docker run \
     -e TCP_PORT=1883 \
-    -v ./log:/log \
-    -v ./data:/data \
+    -v  /root/bridgemq/log:/log \
+    -v  /root/bridgemq/data:/data \
     -p 1883:1883 \
     --name bridgemq \
     -d werbenhu/bridgemq
