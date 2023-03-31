@@ -151,7 +151,7 @@ func (s *Serf) Loop() {
 		case serf.EventMemberLeave, serf.EventMemberFailed:
 			for _, member := range e.(serf.MemberEvent).Members {
 				node := agent.New(member.Name, member.Addr.String(), member.Port, member.Tags[PortKey])
-				if s.serf.LocalMember().Name == member.Name {
+				if s.serf.LocalMember().Name != member.Name {
 					s.handler.OnAgentLeave(node)
 					s.agents.Delete(node.Id)
 				}
