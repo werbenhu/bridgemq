@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/logutils"
 	"github.com/hashicorp/serf/serf"
 	"github.com/natefinch/lumberjack"
+	"github.com/werbenhu/bridgemq/agent"
 )
 
 const (
@@ -42,18 +43,18 @@ func NewSerf(opts *Opt) *Serf {
 	return s
 }
 
-func (s *Serf) LocalAgent() *Agent {
+func (s *Serf) LocalAgent() *agent.Agent {
 	node, ok := s.agents.Load(s.opts.Name)
 	if !ok {
 		return nil
 	}
-	return node.(*Agent)
+	return node.(*agent.Agent)
 }
 
-func (s *Serf) Agents() []*Agent {
-	nodes := make([]*Agent, 0)
+func (s *Serf) Agents() []*agent.Agent {
+	nodes := make([]*agent.Agent, 0)
 	s.agents.Range(func(key any, val any) bool {
-		nodes = append(nodes, val.(*Agent))
+		nodes = append(nodes, val.(*agent.Agent))
 		return true
 	})
 	return nodes
@@ -116,12 +117,12 @@ func (s *Serf) Join(members []string) error {
 func (s *Serf) splitHostPort(addr string) (string, int) {
 	h, p, err := net.SplitHostPort(addr)
 	if err != nil {
-		log.Fatalf("[ERROR] discovery serf discovery parse addr:%s err:%s", addr, err.Error())
+		log.Fatalf("[ERROR] serf discovery parse addr:%s err:%s", addr, err.Error())
 	}
 
 	port, err := strconv.Atoi(p)
 	if err != nil {
-		log.Fatalf("[ERROR] discovery serf discovery parse port:%s err:%s", p, err.Error())
+		log.Fatalf("[ERROR] serf discovery parse port:%s err:%s", p, err.Error())
 	}
 	return h, port
 }
@@ -131,12 +132,7 @@ func (s *Serf) Loop() {
 		switch e.EventType() {
 		case serf.EventMemberJoin:
 			for _, member := range e.(serf.MemberEvent).Members {
-				node := &Agent{
-					Id:       member.Name,
-					Addr:     member.Addr.String(),
-					Port:     member.Port,
-					PipePort: member.Tags[PortKey],
-				}
+				node := agent.New(member.Name, member.Addr.String(), member.Port, member.Tags[PortKey])
 				if s.opts.Name != member.Name {
 					s.handler.OnAgentJoin(node)
 				}
@@ -145,12 +141,7 @@ func (s *Serf) Loop() {
 
 		case serf.EventMemberUpdate:
 			for _, member := range e.(serf.MemberEvent).Members {
-				node := &Agent{
-					Id:       member.Name,
-					Addr:     member.Addr.String(),
-					Port:     member.Port,
-					PipePort: member.Tags[PortKey],
-				}
+				node := agent.New(member.Name, member.Addr.String(), member.Port, member.Tags[PortKey])
 				if s.serf.LocalMember().Name != member.Name {
 					s.handler.OnAgentUpdate(node)
 				}
@@ -159,12 +150,7 @@ func (s *Serf) Loop() {
 
 		case serf.EventMemberLeave, serf.EventMemberFailed:
 			for _, member := range e.(serf.MemberEvent).Members {
-				node := &Agent{
-					Id:       member.Name,
-					Addr:     member.Addr.String(),
-					Port:     member.Port,
-					PipePort: member.Tags[PortKey],
-				}
+				node := agent.New(member.Name, member.Addr.String(), member.Port, member.Tags[PortKey])
 				if s.serf.LocalMember().Name == member.Name {
 					s.handler.OnAgentLeave(node)
 					s.agents.Delete(node.Id)

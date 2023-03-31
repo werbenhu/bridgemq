@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/werbenhu/bridgemq/discovery"
+	"github.com/werbenhu/bridgemq/agent"
 	"google.golang.org/grpc"
 )
 
@@ -37,7 +37,7 @@ func (g *RpcTransport) SetHandler(h Handler) {
 }
 
 // Join() is called When a new agent is discovered by the discovery
-func (g *RpcTransport) Join(node *discovery.Agent) {
+func (g *RpcTransport) Join(node *agent.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
 		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s has joined, addr:%s \n", node.Id, addr)
@@ -56,7 +56,7 @@ func (g *RpcTransport) Join(node *discovery.Agent) {
 }
 
 // Leave() is called When a agent is left
-func (g *RpcTransport) Leave(node *discovery.Agent) {
+func (g *RpcTransport) Leave(node *agent.Agent) {
 	if c, ok := g.clients.Load(node.Id); ok {
 		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s has left, addr:%s \n", node.Id, addr)
@@ -67,7 +67,7 @@ func (g *RpcTransport) Leave(node *discovery.Agent) {
 }
 
 // Join() is called When a agent updated
-func (g *RpcTransport) Update(node *discovery.Agent) {
+func (g *RpcTransport) Update(node *agent.Agent) {
 	if _, ok := g.clients.Load(node.Id); !ok {
 		addr := node.Addr + ":" + node.PipePort
 		log.Printf("[INFO] agent: %s was updated, addr: %s \n", node.Id, addr)
@@ -87,9 +87,9 @@ func (g *RpcTransport) Update(node *discovery.Agent) {
 
 // PushConnect transmit a connect package to the remote agent via grpc
 // clientId is the client id of the client that connected
-func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
+func (g *RpcTransport) PushConnect(local *agent.Agent, clientId string) {
 	g.clients.Range(func(key any, val any) bool {
-		if key.(string) == node.Id {
+		if local.IsSelf(key.(string)) {
 			return true
 		}
 		client := val.(*RpcClient)
@@ -97,7 +97,7 @@ func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
 		defer cancel()
 
 		if _, err := client.PushConnect(ctx, &Connect{
-			AgentId:  node.Id,
+			AgentId:  local.Id,
 			ClientId: clientId,
 		}); err != nil {
 			log.Printf("[ERROR] bridge push connect to agent:%s failed, err:%s\n", key.(string), err.Error())
@@ -108,9 +108,9 @@ func (g *RpcTransport) PushConnect(node *discovery.Agent, clientId string) {
 
 // PushDisconnect transmit a connect package to the remote agent via grpc
 // clientId is the client id of the client that connected
-func (g *RpcTransport) PushDisconnect(node *discovery.Agent, clientId string) {
+func (g *RpcTransport) PushDisconnect(local *agent.Agent, clientId string) {
 	g.clients.Range(func(key any, val any) bool {
-		if key.(string) == node.Id {
+		if local.IsSelf(key.(string)) {
 			return true
 		}
 		client := val.(*RpcClient)
@@ -118,7 +118,7 @@ func (g *RpcTransport) PushDisconnect(node *discovery.Agent, clientId string) {
 		defer cancel()
 
 		if _, err := client.PushDisconnect(ctx, &Disconnect{
-			AgentId:  node.Id,
+			AgentId:  local.Id,
 			ClientId: clientId,
 		}); err != nil {
 			log.Printf("[ERROR] bridge push disconnect to agent:%s failed, err:%s\n", key.(string), err.Error())
@@ -128,9 +128,9 @@ func (g *RpcTransport) PushDisconnect(node *discovery.Agent, clientId string) {
 }
 
 // PushPublish transmit a publish package to the remote agent via grpc
-func (g *RpcTransport) PushPublish(node *discovery.Agent, topic string, payload []byte, qos byte, retain bool) {
+func (g *RpcTransport) PushPublish(local *agent.Agent, topic string, payload []byte, qos byte, retain bool) {
 	g.clients.Range(func(key any, val any) bool {
-		if key.(string) == node.Id {
+		if local.IsSelf(key.(string)) {
 			return true
 		}
 		client := val.(*RpcClient)
@@ -138,7 +138,7 @@ func (g *RpcTransport) PushPublish(node *discovery.Agent, topic string, payload 
 		defer cancel()
 
 		if _, err := client.PushPublish(ctx, &Publish{
-			AgentId: node.Id,
+			AgentId: local.Id,
 			Topic:   topic,
 			Payload: payload,
 			Qos:     int32(qos),

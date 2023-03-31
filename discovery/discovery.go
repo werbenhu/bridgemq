@@ -1,22 +1,17 @@
 package discovery
 
-type Agent struct {
-	Id       string
-	Addr     string
-	Port     uint16
-	PipePort string
-}
+import "github.com/werbenhu/bridgemq/agent"
 
 type Handler interface {
-	OnAgentJoin(*Agent)
-	OnAgentLeave(*Agent)
-	OnAgentUpdate(*Agent)
+	OnAgentJoin(*agent.Agent)
+	OnAgentLeave(*agent.Agent)
+	OnAgentUpdate(*agent.Agent)
 }
 
 type Discovery interface {
 	SetHandler(Handler)
-	Agents() []*Agent
-	LocalAgent() *Agent
+	Agents() []*agent.Agent
+	LocalAgent() *agent.Agent
 	Start() error
 	Stop()
 }

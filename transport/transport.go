@@ -1,8 +1,6 @@
 package transport
 
-import (
-	"github.com/werbenhu/bridgemq/discovery"
-)
+import "github.com/werbenhu/bridgemq/agent"
 
 type Handler interface {
 	OnConnect(id string, clientId string)
@@ -11,13 +9,13 @@ type Handler interface {
 }
 
 type Transport interface {
-	Join(node *discovery.Agent)
-	Leave(node *discovery.Agent)
-	Update(node *discovery.Agent)
+	Join(node *agent.Agent)
+	Leave(node *agent.Agent)
+	Update(node *agent.Agent)
 	SetHandler(Handler)
-	PushConnect(node *discovery.Agent, clientId string)
-	PushDisconnect(node *discovery.Agent, clientId string)
-	PushPublish(node *discovery.Agent, topic string, payload []byte, qos byte, retain bool)
+	PushConnect(local *agent.Agent, clientId string)
+	PushDisconnect(local *agent.Agent, clientId string)
+	PushPublish(local *agent.Agent, topic string, payload []byte, qos byte, retain bool)
 	Start() error
 	Stop()
 }

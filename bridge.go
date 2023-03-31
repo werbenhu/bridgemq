@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/mochi-co/mqtt/v2/packets"
+	"github.com/werbenhu/bridgemq/agent"
 	"github.com/werbenhu/bridgemq/discovery"
 	"github.com/werbenhu/bridgemq/transport"
 )
@@ -47,39 +48,49 @@ func (b *Bridge) Stop() error {
 	return nil
 }
 
-func (b *Bridge) OnAgentJoin(a *discovery.Agent) {
+func (b *Bridge) LocalAgent() *agent.Agent {
+	if b.discovery != nil {
+		b.discovery.LocalAgent()
+	}
+	return nil
+}
+
+func (b *Bridge) OnAgentJoin(a *agent.Agent) {
 	if b.transport != nil {
 		b.transport.Join(a)
 	}
 }
 
-func (b *Bridge) OnAgentLeave(a *discovery.Agent) {
+func (b *Bridge) OnAgentLeave(a *agent.Agent) {
 	if b.transport != nil {
 		b.transport.Leave(a)
 	}
 }
 
-func (b *Bridge) OnAgentUpdate(a *discovery.Agent) {
+func (b *Bridge) OnAgentUpdate(a *agent.Agent) {
 	if b.transport != nil {
 		b.transport.Update(a)
 	}
 }
 
-func (b *Bridge) PushConnect(node *discovery.Agent, clientId string) {
+func (b *Bridge) PushConnect(clientId string) {
 	if b.transport != nil {
-		b.transport.PushConnect(node, clientId)
+		local := b.discovery.LocalAgent()
+		b.transport.PushConnect(local, clientId)
 	}
 }
 
-func (b *Bridge) PushDisconnect(node *discovery.Agent, clientId string) {
+func (b *Bridge) PushDisconnect(clientId string) {
 	if b.transport != nil {
-		b.transport.PushDisconnect(node, clientId)
+		local := b.discovery.LocalAgent()
+		b.transport.PushDisconnect(local, clientId)
 	}
 }
 
-func (b *Bridge) PushPublish(node *discovery.Agent, topic string, payload []byte, qos byte, retain bool) {
+func (b *Bridge) PushPublish(topic string, payload []byte, qos byte, retain bool) {
 	if b.transport != nil {
-		b.transport.PushPublish(node, topic, payload, qos, retain)
+		local := b.discovery.LocalAgent()
+		b.transport.PushPublish(local, topic, payload, qos, retain)
 	}
 }
 

@@ -48,11 +48,13 @@ func (h *Hook) Init(config any) error {
 	return nil
 }
 
+// OnSessionEstablished is called when a new client establishes a session (after OnConnect).
 func (h *Hook) OnSessionEstablished(cl *mqtt.Client, pk packets.Packet) {
 	log.Printf("[INFO] local client id:%s connected \n", cl.ID)
-	h.bridge.PushConnect(h.bridge.discovery.LocalAgent(), pk.Connect.ClientIdentifier)
+	h.bridge.PushConnect(pk.Connect.ClientIdentifier)
 }
 
+// OnPublish is called when a client publishes a message.
 func (h *Hook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
 
 	if cl.ID == h.ID() && cl.Net.Inline {
@@ -62,18 +64,20 @@ func (h *Hook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, er
 	return pk, nil
 }
 
+// OnWillSent is called when an LWT message has been issued from a disconnecting client.
 func (h *Hook) OnWillSent(cl *mqtt.Client, pk packets.Packet) {
 	h.pushPublish(cl, pk)
 }
 
+// OnDisconnect is called when a client is disconnected for any reason.
 func (h *Hook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 	log.Printf("[INFO] local client id:%s disconnected \n", cl.ID)
-	h.bridge.PushDisconnect(h.bridge.discovery.LocalAgent(), cl.ID)
+	h.bridge.PushDisconnect(cl.ID)
 }
 
+// PushPublish transmit a publish package to the remote agent via grpc
 func (h *Hook) pushPublish(cl *mqtt.Client, pk packets.Packet) {
 	h.bridge.PushPublish(
-		h.bridge.discovery.LocalAgent(),
 		pk.TopicName,
 		pk.Payload,
 		pk.FixedHeader.Qos,
