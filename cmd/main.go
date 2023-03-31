@@ -48,20 +48,20 @@ func newTlsConfig(pemFile string, keyFile string, caFile string) *tls.Config {
 }
 
 func main() {
-	tcpPort := flag.String("tcp", "", "network port for tcp listener")
-	tlsPort := flag.String("tls", "", "network port for tls listener, if this parameter is not set, the service will not open, if set this then parameter -tls-ca, -tls-cert and -tls-key must be set")
-	wsPort := flag.String("ws", "", "network port for Websocket listener, if this parameter is not set, this service will not open")
-	tlsCa := flag.String("tls-ca", "", "ca file path for tls TCP listener")
-	tlsCert := flag.String("tls-cert", "", "certificate file path for tls TCP listener")
-	tlsKey := flag.String("tls-key", "", "key file path for tls TCP listener")
+	tcpPort := flag.String("tcp", "", "network port for mqtt tcp listener")
+	tlsPort := flag.String("tls", "", "network port for mqtt tls listener, if this parameter is not set, the service will not open, if set this then parameter -tls-ca, -tls-cert and -tls-key must be set")
+	wsPort := flag.String("ws", "", "network port for mqtt websocket listener, if this parameter is not set, this service will not open")
+	tlsCa := flag.String("tls-ca", "", "ca file path for tls listener")
+	tlsCert := flag.String("tls-cert", "", "certificate file path for tls listener")
+	tlsKey := flag.String("tls-key", "", "key file path for tls listener")
 	dashboard := flag.String("dashboard", "8080", "http port for web info dashboard listener, if this parameter is not set, this default port is 8080")
 
 	isBridge := flag.Bool("bridge", false, "optional value for bridge mode")
 	agents := flag.String("agents", "", "seeds list of bridge member agents, such as 192.168.0.1:7933,192.168.0.2:7933")
 	agentName := flag.String("agent-name", "", "the name of current agent, this parameter is not set, a name is randomly generated")
-	agentAddr := flag.String("agent-addr", ":7933", "listening addr for bridge node, such as 192.168.0.1:7933 or :7933")
+	agentAddr := flag.String("agent-addr", ":7933", "listening addr for bridge agent, such as 192.168.0.1:7933 or :7933")
 	agentAdvertise := flag.String("agent-advertise", "", "address to advertise to other agent. used for nat traversal. such as 192.168.0.1:7933 or www.xxx.com:7933")
-	pipePort := flag.String("pipe-port", "8933", "transmit port to receive msg from other bridge agent. such as 8933")
+	pipePort := flag.String("pipe-port", "8933", "transmit port (grpc server) to receive msg from other bridge agent. such as 8933")
 
 	flag.Parse()
 	sigs := make(chan os.Signal, 1)

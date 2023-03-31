@@ -8,6 +8,38 @@ Bridgemq can be used as a standalone broker and it based on [mochi-co/mqtt](http
 ## Quick Start
 Simply checkout this repository and run the [cmd/main.go](cmd/main.go) entrypoint in the [cmd](cmd) folder which will expose tcp (:1883), tls tcp(:8883), websocket(:8085), and dashboard(:8080) listeners.
 
+
+#### Usage
+```
+Usage of bridgemq:
+  -agent-addr string
+        listening addr for bridge agent, such as 192.168.0.1:7933 or :7933 (default ":7933")
+  -agent-advertise string
+        address to advertise to other agent. used for nat traversal. such as 192.168.0.1:7933 or www.xxx.com:7933
+  -agent-name string
+        the name of current agent, this parameter is not set, a name is randomly generated
+  -agents string
+        seeds list of bridge member agents, such as 192.168.0.1:7933,192.168.0.2:7933
+  -bridge
+        optional value for bridge mode
+  -dashboard string
+        http port for web info dashboard listener, if this parameter is not set, this default port is 8080 (default "8080")
+  -pipe-port string
+        transmit port (grpc server) to receive msg from other bridge agent. such as 8933 (default "8933")
+  -tcp string
+        network port for mqtt tcp listener
+  -tls string
+        network port for mqtt tls listener, if this parameter is not set, the service will not open, if set this then parameter -tls-ca, -tls-cert and -tls-key must be set
+  -tls-ca string
+        ca file path for tls listener
+  -tls-cert string
+        certificate file path for tls listener
+  -tls-key string
+        key file path for tls listener
+  -ws string
+        network port for mqtt websocket listener, if this parameter is not set, this service will not open
+```
+
 #### Simple start 
 ```sh
 cd cmd
