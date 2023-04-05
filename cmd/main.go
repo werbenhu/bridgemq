@@ -18,7 +18,7 @@ import (
 	"github.com/mochi-co/mqtt/v2/hooks/storage/bolt"
 	"github.com/mochi-co/mqtt/v2/listeners"
 	"github.com/rs/zerolog"
-	"github.com/werbenhu/bridgemq"
+	"github.com/werbenhu/crouter/discovery"
 	"go.etcd.io/bbolt"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -56,12 +56,12 @@ func main() {
 	tlsKey := flag.String("tls-key", "", "key file path for tls listener")
 	dashboard := flag.String("dashboard", "8080", "http port for web info dashboard listener, if this parameter is not set, this default port is 8080")
 
-	isBridge := flag.Bool("bridge", false, "optional value for bridge mode")
-	agents := flag.String("agents", "", "seeds list of bridge member agents, such as 192.168.0.1:7933,192.168.0.2:7933")
-	agentName := flag.String("agent-name", "", "the name of current agent, this parameter is not set, a name is randomly generated")
-	agentAddr := flag.String("agent-addr", ":7933", "listening addr for bridge agent, such as 192.168.0.1:7933 or :7933")
-	agentAdvertise := flag.String("agent-advertise", "", "address to advertise to other agent. used for nat traversal. such as 192.168.0.1:7933 or www.xxx.com:7933")
-	pipePort := flag.String("pipe-port", "8933", "transmit port (grpc server) to receive msg from other bridge agent. such as 8933")
+	discoveryMembers := flag.String("members", "", "seeds list of discovery members, such as 192.168.0.1:7933,192.168.0.2:7933")
+	discoveryAddr := flag.String("addr", ":7933", "listening addr for bridge agent, such as 192.168.0.1:7933 or :7933")
+	discoveryAdvertise := flag.String("advertise", "", "address to advertise to other agent. used for nat traversal. such as 192.168.0.1:7933 or www.xxx.com:7933")
+
+	srv := flag.String("srv", "", "")
+	id := flag.String("id", "", "the id of current member, this parameter is not set, a name is randomly generated")
 
 	flag.Parse()
 	sigs := make(chan os.Signal, 1)
@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	writers := io.MultiWriter(&lumberjack.Logger{
-		Filename:   "./log/bridgemq.log",
+		Filename:   "./log/cmqtt.log",
 		MaxSize:    10,
 		MaxBackups: 3,
 		MaxAge:     28,
@@ -89,10 +89,10 @@ func main() {
 		Logger: &logger,
 	})
 
-	os.MkdirAll("./data", fs.ModePerm)
+	os.MkdirAll("data/"+*id, fs.ModePerm)
 	_ = server.AddHook(new(auth.AllowHook), nil)
 	_ = server.AddHook(new(bolt.Hook), &bolt.Options{
-		Path: "./data/bolt.db",
+		Path: "data/" + *id + "/bolt.db",
 		Options: &bbolt.Options{
 			Timeout: 500 * time.Millisecond,
 		},
@@ -122,18 +122,6 @@ func main() {
 		}
 	}
 
-	// if bridge mode on, add bridge hook to mqtt server
-	if *isBridge {
-		_ = server.AddHook(new(bridgemq.Hook), []bridgemq.IOption{
-			bridgemq.OptName(*agentName),
-			bridgemq.OptAddr(*agentAddr),
-			bridgemq.OptAgents(*agents),
-			bridgemq.OptBroker(server),
-			bridgemq.OptAdvertise(*agentAdvertise),
-			bridgemq.OptPipePort(*pipePort),
-		})
-	}
-
 	// if websocket port not set, do not open the ws service
 	if *wsPort != "" {
 		ws := listeners.NewWebsocket("ws1", ":"+*wsPort, nil)
@@ -154,6 +142,22 @@ func main() {
 
 	go func() {
 		err := server.Serve()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	agent := &discovery.Agent{
+		DiscoveryAddr:      *discoveryAddr,
+		DiscoveryAdvertise: *discoveryAdvertise,
+		Members:            *discoveryMembers,
+		Id:                 *id,
+		Group:              "mqtt",
+		ServiceAddr:        *srv,
+	}
+	serf := discovery.NewSerf(agent)
+	go func() {
+		err := serf.Start()
 		if err != nil {
 			log.Fatal(err)
 		}
