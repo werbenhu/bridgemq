@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/hashicorp/logutils v1.0.0
 	github.com/hashicorp/serf v0.10.1
-	github.com/mochi-co/mqtt/v2 v2.2.6
+	github.com/mochi-co/mqtt/v2 v2.2.8
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/rs/xid v1.4.0
 	github.com/rs/zerolog v1.29.0
